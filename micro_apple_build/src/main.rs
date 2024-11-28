@@ -10,7 +10,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .into_iter()
         .flat_map(|f| f.0.map(|v| (v > 128) as u8))
         .collect::<Vec<_>>();
-    println!("{:?}", &flattened[..100]);
 
     let mut encoded = Vec::new();
 
@@ -28,14 +27,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         num_seen += 1;
     }
     encoded.push((num_seen, last_value));
-    println!("{:?}", &encoded[..100]);
-    
-    let packed_encoded = encoded.into_iter().map(|(repeat, value)| repeat << 1 | value).collect::<Vec<_>>();
-    println!("{:?}", &packed_encoded[..100]);
 
+    let packed_encoded = encoded
+        .into_iter()
+        .map(|(repeat, value)| repeat << 1 | value)
+        .collect::<Vec<_>>();
 
+    println!(
+        "saving frames (total size {} bytes)",
+        packed_encoded.len() * std::mem::size_of::<u8>()
+    );
     let mut file = std::fs::File::create("../bad_apple_rle.bin")?;
     file.write_all(&packed_encoded)?;
-    
+
     Ok(())
 }
